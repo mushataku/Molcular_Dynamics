@@ -12,8 +12,8 @@ import PIL.ImageFont
 GIF = 0
 MP4 = 1
 PLT = 0
-SAVEPATH = "tintin"
-text = "ちんちん"
+SAVEPATH = "boron"
+text = "チンポ(ﾎﾞﾛﾝ"
 ###########################
 
 # ------------------------------------------------------------------
@@ -25,38 +25,47 @@ def draw_text_at_center(img, text):
     img_size = np.array(img.size)
     txt_size = np.array(draw.font.getsize(text))
     pos = (img_size - txt_size) / 2
-
-    draw.text(pos, text, (0, 0, 255))
+    print(img_size)
+    print(txt_size)
+    print(pos)
+    print((X,Y))
+    # exit()
+    draw.text((0,0), text, (0, 0, 255))
 
 # ------------------------------------------------------------------
-X = 400
+X = 500
 Y = 100
 Back = (1,1,1)
+def get_xy(text):
+  img = PIL.Image.new("RGBA", (X, Y), Back)
+  draw_text_at_center(img, text)
+  dat_RGB = np.asarray(img)
+  x_list = []
+  y_list = []
+  for x in range(X):
+    for y in range(Y):
+      if(dat_RGB[y][x][0] != 1):
+        x_list.append(x)
+        y_list.append(Y-y-1)
+  return x_list, y_list
 
-img = PIL.Image.new("RGBA", (X, Y), Back)
-draw_text_at_center(img, text)
-dat_RGB = np.asarray(img)
+x_list,y_list = get_xy(text)
 
-# print(dat_RGB)
 
-x_list = []
-y_list = []
-for x in range(X):
-  for y in range(Y):
-    if(dat_RGB[y][x][0] != 1):
-      x_list.append(x)
-      y_list.append(Y-y-1)
 
-PRE = 500
+
+PRE = 100
 FRAME = 100
 ALL = PRE + FRAME
 
 FRAME += 1
 
+FRAME += 50
+
 N = len(x_list)
 
-vx = np.zeros((N,ALL))
-vy = np.zeros((N,ALL))
+vx = np.zeros((N,ALL+3))
+vy = np.zeros((N,ALL+3))
 for n in range(N):
   for frame in range(ALL):
     if(frame%2):
@@ -67,6 +76,7 @@ for n in range(N):
       vy[n][frame] = -2
   random.shuffle(vx[n])
   random.shuffle(vy[n])
+
 vy = np.concatenate([vy,vy], axis=1)
 vx = np.concatenate([vx,vx], axis=1)
 
@@ -80,6 +90,7 @@ for frame in range(PRE):
 # 基本的な部品を宣言  
 fig = plt.figure()
 ax = fig.add_subplot(111, fc="black")
+# line, = ax.plot(x_list,y_list,".w", markersize=1)
 line, = ax.plot(x_list,y_list,".w")
 ax.axes.xaxis.set_visible(False)
 ax.axes.yaxis.set_visible(False)
@@ -99,7 +110,6 @@ def animate(frame):
   
   print(frame+PRE)
   line.set_data(x_list, y_list)
-  
 
 ani = FuncAnimation(fig, animate, frames=FRAME
               , interval=200, repeat=False, blit=False)
